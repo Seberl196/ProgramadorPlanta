@@ -1,26 +1,50 @@
 # Entorno virtual
 .venv/
+venv/
+env/
 
-# Python
+# Caché de Python
 __pycache__/
 *.py[cod]
 *$py.class
 
 # Base de datos local
-data/*.db
-data/*.db-shm
-data/*.db-wal
+programador_planta.db
+*.db-journal
+*.db-shm
+*.db-wal
 
-# Streamlit
-.streamlit/
+# Copias de seguridad
+*_backup*
+*backup*
+*.bak
+
+# Logs
+logs/
+*.log
+
+# Herramientas
+.ruff_cache/
+.vulture_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
 # Visual Studio Code
 .vscode/
 
-# Archivos temporales
-*.log
-*.tmp
+# PyCharm
+.idea/
 
-# Sistema operativo
+# Windows
 Thumbs.db
+Desktop.ini
+
+# macOS
 .DS_Store
+
+# Archivos temporales
+*.tmp
+*.temp
+~$*
