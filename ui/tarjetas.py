@@ -1,6 +1,8 @@
-import streamlit as st
 from datetime import datetime
 
+import streamlit as st
+
+from core.gantt import calcular_horas_restantes
 from core.programacion import (
     crear_programacion,
     formatear_fecha_hora,
@@ -14,7 +16,6 @@ from ui.acciones_ot import (
     mostrar_acciones_pausada,
     mostrar_acciones_pendiente,
 )
-from core.gantt import calcular_horas_restantes
 
 
 def _obtener_clave_tarjeta(orden: dict) -> str:
@@ -46,7 +47,7 @@ def _mostrar_datos_orden(orden: dict) -> None:
     st.markdown(titulo)
 
     if orden["estado"] == "en_produccion":
-        st.caption("Producción activa en el Tren 1")
+        st.caption("Producción activa")
 
     elif orden["estado"] == "pausada":
         st.caption("Producción detenida temporalmente")
@@ -88,6 +89,7 @@ def mostrar_tarjeta_orden(
     orden: dict,
     ultima_posicion: int,
     hay_ot_en_produccion: bool,
+    tren_id: int,
 ) -> None:
     """
     Muestra una tarjeta de la cola activa.
@@ -108,24 +110,27 @@ def mostrar_tarjeta_orden(
                 mostrar_acciones_pendiente(
                     orden=orden,
                     ultima_posicion=ultima_posicion,
-                    hay_ot_en_produccion=(hay_ot_en_produccion),
+                    hay_ot_en_produccion=hay_ot_en_produccion,
+                    tren_id=tren_id,
                 )
 
             elif orden["estado"] == "en_produccion":
-                mostrar_acciones_en_produccion(orden)
+                mostrar_acciones_en_produccion(
+                    orden=orden,
+                    tren_id=tren_id,
+                )
 
 
 def _mostrar_tarjeta_pausada(
     orden: dict,
     hay_ot_en_produccion: bool,
+    tren_id: int,
 ) -> None:
     """
     Muestra una OT pausada fuera de la cola activa.
     """
     duracion_total = float(orden["duracion_horas"])
-
     horas_producidas = float(orden.get("horas_producidas") or 0)
-
     horas_restantes = calcular_horas_restantes(orden)
 
     clave_tarjeta = f"ot_card_pausada_{orden['id']}"
@@ -138,37 +143,40 @@ def _mostrar_tarjeta_pausada(
 
         with datos:
             st.markdown(f"### {orden['numero_ot']}  ⏸️ Pausada")
-
             st.caption("Esta OT está fuera de la cola activa.")
-
             st.write(f"**Duración total:** {duracion_total:.2f} horas")
-
             st.write(f"**Horas producidas:** {horas_producidas:.2f} horas")
-
             st.write(f"**Horas restantes:** {horas_restantes:.2f} horas")
 
         with acciones:
             mostrar_acciones_pausada(
                 orden=orden,
-                hay_ot_en_produccion=(hay_ot_en_produccion),
+                hay_ot_en_produccion=hay_ot_en_produccion,
+                tren_id=tren_id,
             )
 
 
 def mostrar_programacion(
     inicio_programacion,
+    tren_id: int,
 ) -> None:
     """
     Muestra por separado:
 
     - OT pausadas.
-    - Cola activa del Tren 1.
+    - Cola activa del tren seleccionado.
     """
-    ordenes_programables = obtener_ordenes_programables()
+    ordenes_programables = obtener_ordenes_programables(
+        tren_id=tren_id,
+    )
 
-    ordenes_pausadas = obtener_ordenes_pausadas()
+    ordenes_pausadas = obtener_ordenes_pausadas(
+        tren_id=tren_id,
+    )
 
     hay_ot_en_produccion = any(
-        orden["estado"] == "en_produccion" for orden in ordenes_programables
+        orden["estado"] == "en_produccion"
+        for orden in ordenes_programables
     )
 
     if ordenes_pausadas:
@@ -177,7 +185,8 @@ def mostrar_programacion(
         for orden in ordenes_pausadas:
             _mostrar_tarjeta_pausada(
                 orden=orden,
-                hay_ot_en_produccion=(hay_ot_en_produccion),
+                hay_ot_en_produccion=hay_ot_en_produccion,
+                tren_id=tren_id,
             )
 
         st.divider()
@@ -190,7 +199,8 @@ def mostrar_programacion(
 
     if inicio_programacion is None:
         st.warning(
-            "Debes definir el inicio de la programación antes de calcular los horarios."
+            "Debes definir el inicio de la programación "
+            "antes de calcular los horarios."
         )
         return
 
@@ -205,5 +215,6 @@ def mostrar_programacion(
         mostrar_tarjeta_orden(
             orden=orden,
             ultima_posicion=ultima_posicion,
-            hay_ot_en_produccion=(hay_ot_en_produccion),
+            hay_ot_en_produccion=hay_ot_en_produccion,
+            tren_id=tren_id,
         )

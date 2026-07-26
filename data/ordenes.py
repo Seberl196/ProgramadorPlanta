@@ -4,7 +4,7 @@ from data.conexion import obtener_conexion
 
 
 def obtener_ordenes(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> list[dict]:
     """
     Devuelve todas las OT no terminadas
@@ -26,7 +26,7 @@ def obtener_ordenes(
 
 
 def obtener_ordenes_programables(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> list[dict]:
     """
     Devuelve la cola activa del tren indicado.
@@ -52,7 +52,7 @@ def obtener_ordenes_programables(
 
 
 def obtener_ordenes_pausadas(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> list[dict]:
     """
     Devuelve las OT pausadas del tren indicado.
@@ -73,7 +73,7 @@ def obtener_ordenes_pausadas(
 
 
 def obtener_historial(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> list[dict]:
     """
     Devuelve las OT terminadas del tren indicado.
@@ -95,7 +95,7 @@ def obtener_historial(
 def agregar_orden(
     numero_ot: str,
     duracion_horas: float,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Añade una OT al final de la cola activa
@@ -174,7 +174,7 @@ def actualizar_orden(
 def mover_orden(
     orden_id: int,
     direccion: str,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Mueve una OT pendiente una posición.
@@ -240,7 +240,7 @@ def mover_orden(
 
 def eliminar_orden(
     orden_id: int,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Elimina una OT pendiente.
@@ -261,7 +261,7 @@ def eliminar_orden(
 
 
 def reorganizar_posiciones(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Reorganiza únicamente la cola activa
@@ -300,7 +300,7 @@ def reorganizar_posiciones(
 
 def iniciar_produccion(
     orden_id: int,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Inicia la primera OT pendiente.
@@ -360,7 +360,7 @@ def pausar_produccion(
     orden_id: int,
     horas_producidas: float,
     proximo_inicio: datetime,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Pausa una OT, guarda el avance y libera el tren.
@@ -437,7 +437,7 @@ def pausar_produccion(
 
 def reanudar_produccion(
     orden_id: int,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Reanuda una OT pausada y la coloca al frente.
@@ -464,8 +464,10 @@ def reanudar_produccion(
             SELECT id
             FROM ordenes
             WHERE estado = 'en_produccion'
+            AND tren_id = ?
             LIMIT 1
-            """
+            """,
+            (tren_id,),
         ).fetchone()
 
         if activa is not None:
@@ -494,14 +496,14 @@ def reanudar_produccion(
             (orden_id,),
         )
 
-    reorganizar_posiciones()
+    reorganizar_posiciones(tren_id)
 
 
 def terminar_produccion(
     orden_id: int,
     fecha_fin_real: datetime,
     proximo_inicio: datetime,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Termina una OT en producción y actualiza
@@ -589,4 +591,3 @@ def terminar_produccion(
 
     reorganizar_posiciones(tren_id)
 
-    reorganizar_posiciones(tren_id)

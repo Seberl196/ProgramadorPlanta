@@ -185,11 +185,13 @@ def _mostrar_resumen(
         )
 
 
-def _mostrar_pausadas() -> None:
+def _mostrar_pausadas(
+        tren_id: int,
+) -> None:
     """
     Muestra un resumen de las OT pausadas.
     """
-    ordenes_pausadas = obtener_ordenes_pausadas()
+    ordenes_pausadas = obtener_ordenes_pausadas(tren_id=tren_id)
 
     if not ordenes_pausadas:
         return
@@ -203,18 +205,19 @@ def _mostrar_pausadas() -> None:
 
 def mostrar_gantt_diario(
     inicio_programacion: datetime | None,
+    tren_id = int,
 ) -> None:
     """
     Muestra una vista Gantt separada por jornadas.
     """
     st.subheader("Gantt diario de producción")
 
-    ordenes = obtener_ordenes_programables()
+    ordenes = obtener_ordenes_programables(tren_id=tren_id)
 
     if not ordenes:
         st.info("No hay órdenes en la cola activa.")
 
-        _mostrar_pausadas()
+        _mostrar_pausadas(tren_id=tren_id)
         return
 
     if inicio_programacion is None:
@@ -259,4 +262,4 @@ def mostrar_gantt_diario(
         "independiente, desde las 06:00 hasta las 22:00."
     )
 
-    _mostrar_pausadas()
+    _mostrar_pausadas(tren_id)

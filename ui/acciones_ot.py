@@ -20,6 +20,7 @@ def mostrar_acciones_pendiente(
     orden: dict,
     ultima_posicion: int,
     hay_ot_en_produccion: bool,
+    tren_id: int,
 ) -> None:
     """
     Muestra las acciones disponibles para una OT pendiente.
@@ -40,6 +41,7 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="subir",
+                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -59,6 +61,7 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="bajar",
+                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -95,7 +98,10 @@ def mostrar_acciones_pendiente(
             use_container_width=True,
         ):
             try:
-                iniciar_produccion(orden["id"])
+                iniciar_produccion(
+                    orden["id"],
+                    tren_id=tren_id,
+                )
 
                 guardar_mensaje(
                     f"La OT {orden['numero_ot']} está en producción.",
@@ -110,6 +116,7 @@ def mostrar_acciones_pendiente(
 
 def mostrar_acciones_en_produccion(
     orden: dict,
+    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT en producción.
@@ -133,6 +140,7 @@ def mostrar_acciones_en_produccion(
 def mostrar_acciones_pausada(
     orden: dict,
     hay_ot_en_produccion: bool,
+    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT pausada.
@@ -145,7 +153,10 @@ def mostrar_acciones_pausada(
         use_container_width=True,
     ):
         try:
-            reanudar_produccion(orden["id"])
+            reanudar_produccion(
+                orden["id"],
+                tren_id=tren_id,
+            )
 
             guardar_mensaje(
                 f"La OT {orden['numero_ot']} fue reanudada.",

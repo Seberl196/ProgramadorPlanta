@@ -15,7 +15,9 @@ from ui.mensajes import (
 )
 
 
-def mostrar_formulario_inicio_programacion() -> datetime | None:
+def mostrar_formulario_inicio_programacion(
+    tren_id: int,
+) -> None:
     """
     Muestra el formulario para definir el inicio de una
     nueva programación.
@@ -61,7 +63,7 @@ def mostrar_formulario_inicio_programacion() -> datetime | None:
 
             inicio_ajustado = ajustar_inicio_laboral(inicio_seleccionado)
 
-            definir_inicio_programacion(inicio_ajustado)
+            definir_inicio_programacion(inicio_ajustado, tren_id)
 
             if inicio_ajustado != inicio_seleccionado:
                 guardar_mensaje_general(
@@ -105,7 +107,9 @@ def mostrar_formulario_inicio_programacion() -> datetime | None:
     return inicio_programacion
 
 
-def mostrar_formulario_nueva_ot() -> None:
+def mostrar_formulario_nueva_ot(
+    tren_id: int,
+) -> None:
     """
     Muestra el formulario para añadir una nueva OT.
     """
@@ -149,6 +153,7 @@ def mostrar_formulario_nueva_ot() -> None:
         agregar_orden(
             numero_ot=numero_ot,
             duracion_horas=duracion_horas,
+            tren_id=tren_id,
         )
 
         guardar_mensaje(f"La OT {numero_ot.strip()} fue añadida.")
