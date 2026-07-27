@@ -384,11 +384,13 @@ def pausar_produccion(
     orden_id: int,
     horas_producidas: float,
     proximo_inicio: datetime,
-    tren_id: int,
 ) -> None:
     """
     Pausa una OT, guarda el avance y libera el tren.
     """
+
+    tren_id = obtener_tren_id_de_orden(orden_id)
+
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
@@ -470,7 +472,7 @@ def reanudar_produccion(
     """
 
     tren_id = obtener_tren_id_de_orden(orden_id)
-    
+
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
@@ -535,12 +537,14 @@ def terminar_produccion(
     orden_id: int,
     fecha_fin_real: datetime,
     proximo_inicio: datetime,
-    tren_id: int,
 ) -> None:
     """
     Termina una OT en producción y actualiza
     el estado de programación del tren indicado.
     """
+
+    tren_id = obtener_tren_id_de_orden(orden_id)
+    
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
