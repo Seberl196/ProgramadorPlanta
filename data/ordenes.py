@@ -2,6 +2,26 @@ from datetime import datetime
 
 from data.conexion import obtener_conexion
 
+def obtener_tren_id_de_orden(
+    orden_id: int,
+) -> int:
+    """
+    Obtiene el tren al que pertenece una OT.
+    """
+    with obtener_conexion() as conexion:
+        fila = conexion.execute(
+            """
+            SELECT tren_id
+            FROM ordenes
+            WHERE id = ?
+            """,
+            (orden_id,),
+        ).fetchone()
+
+    if fila is None:
+        raise ValueError("La OT seleccionada no existe.")
+
+    return int(fila["tren_id"])
 
 def obtener_ordenes(
     tren_id: int,
@@ -175,7 +195,6 @@ def actualizar_orden(
 def mover_orden(
     orden_id: int,
     direccion: str,
-    tren_id: int,
 ) -> None:
     """
     Mueve una OT pendiente una posición.
@@ -185,6 +204,8 @@ def mover_orden(
         "bajar",
     }:
         raise ValueError("La dirección debe ser 'subir' o 'bajar'.")
+
+    tren_id = obtener_tren_id_de_orden(orden_id)
 
     ordenes = obtener_ordenes_programables(tren_id)
 
@@ -301,11 +322,13 @@ def reorganizar_posiciones(
 
 def iniciar_produccion(
     orden_id: int,
-    tren_id: int,
 ) -> None:
     """
     Inicia la primera OT pendiente.
     """
+
+    tren_id = obtener_tren_id_de_orden(orden_id)
+
     with obtener_conexion() as conexion:
         primera = conexion.execute(
             """
@@ -441,11 +464,13 @@ def pausar_produccion(
 
 def reanudar_produccion(
     orden_id: int,
-    tren_id: int,
 ) -> None:
     """
     Reanuda una OT pausada y la coloca al frente.
     """
+
+    tren_id = obtener_tren_id_de_orden(orden_id)
+    
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """

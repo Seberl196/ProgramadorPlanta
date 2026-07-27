@@ -24,7 +24,6 @@ def mostrar_acciones_pendiente(
     """
     Muestra las acciones disponibles para una OT pendiente.
     """
-    tren_id = orden["tren_id"]
 
     columna_subir, columna_bajar = st.columns(2)
 
@@ -42,7 +41,6 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="subir",
-                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -62,7 +60,6 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="bajar",
-                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -101,7 +98,6 @@ def mostrar_acciones_pendiente(
             try:
                 iniciar_produccion(
                     orden["id"],
-                    tren_id=tren_id,
                 )
 
                 guardar_mensaje(
@@ -144,8 +140,7 @@ def mostrar_acciones_pausada(
     """
     Muestra las acciones de una OT pausada.
     """
-    tren_id = orden["tren_id"]
-    
+
     if st.button(
         "▶️ Reanudar producción",
         key=f"reanudar_{orden['id']}",
@@ -156,7 +151,6 @@ def mostrar_acciones_pausada(
         try:
             reanudar_produccion(
                 orden["id"],
-                tren_id=tren_id,
             )
 
             guardar_mensaje(
