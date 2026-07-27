@@ -20,11 +20,12 @@ def mostrar_acciones_pendiente(
     orden: dict,
     ultima_posicion: int,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones disponibles para una OT pendiente.
     """
+    tren_id = orden["tren_id"]
+
     columna_subir, columna_bajar = st.columns(2)
 
     with columna_subir:
@@ -116,7 +117,6 @@ def mostrar_acciones_pendiente(
 
 def mostrar_acciones_en_produccion(
     orden: dict,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT en producción.
@@ -140,11 +140,12 @@ def mostrar_acciones_en_produccion(
 def mostrar_acciones_pausada(
     orden: dict,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT pausada.
     """
+    tren_id = orden["tren_id"]
+    
     if st.button(
         "▶️ Reanudar producción",
         key=f"reanudar_{orden['id']}",
