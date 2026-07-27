@@ -7,7 +7,6 @@ from core.programacion import (
     HORA_INICIO_JORNADA,
 )
 
-
 NOMBRES_ESTADO = {
     "pendiente": "Pendiente",
     "en_produccion": "En producción",

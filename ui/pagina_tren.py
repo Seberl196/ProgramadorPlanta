@@ -5,24 +5,30 @@ from ui.formularios import (
     mostrar_formulario_nueva_ot,
 )
 from ui.gantt import mostrar_gantt
-from ui.tarjetas import mostrar_programacion
 from ui.gantt_diario import mostrar_gantt_diario
+from ui.tarjetas import mostrar_programacion
 
 
 def mostrar_pagina_tren(
-    numero_tren: int,
+    tren_id: int,
+    nombre_tren: str,
 ) -> None:
     """
-    Muestra la página completa de un tren con dos vistas:
+    Muestra la página completa del tren seleccionado.
+
+    Incluye:
 
     - Kanban para gestionar la producción.
-    - Gantt para visualizar la programación.
+    - Gantt general.
+    - Gantt diario.
     """
-    st.header(f"Programación — Tren {numero_tren}")
+    st.header(f"Programación — {nombre_tren}")
 
     st.caption("Horario de producción: todos los días de 06:00 a 22:00.")
 
-    inicio_programacion = mostrar_formulario_inicio_programacion()
+    inicio_programacion = mostrar_formulario_inicio_programacion(
+        tren_id=tren_id,
+    )
 
     pestana_kanban, pestana_gantt_1, pestana_gantt_2 = st.tabs(
         [
@@ -33,14 +39,25 @@ def mostrar_pagina_tren(
     )
 
     with pestana_kanban:
-        mostrar_formulario_nueva_ot()
+        mostrar_formulario_nueva_ot(
+            tren_id=tren_id,
+        )
 
         st.divider()
 
-        mostrar_programacion(inicio_programacion)
+        mostrar_programacion(
+            inicio_programacion,
+            tren_id=tren_id,
+        )
 
     with pestana_gantt_1:
-        mostrar_gantt(inicio_programacion)
+        mostrar_gantt(
+            inicio_programacion,
+            tren_id=tren_id,
+        )
 
     with pestana_gantt_2:
-        mostrar_gantt_diario(inicio_programacion)
+        mostrar_gantt_diario(
+            inicio_programacion,
+            tren_id=tren_id,
+        )

@@ -3,9 +3,11 @@ from datetime import datetime
 from data.conexion import obtener_conexion
 
 
-def obtener_estado_tren() -> dict:
+def obtener_estado_tren(
+    tren_id: int = 1,
+) -> dict:
     """
-    Devuelve el estado persistente del Tren 1.
+    Devuelve el estado persistente del tren indicado.
     """
     with obtener_conexion() as conexion:
         fila = conexion.execute(
@@ -14,8 +16,9 @@ def obtener_estado_tren() -> dict:
                 proximo_inicio,
                 programacion_activa
             FROM estado_tren
-            WHERE id = 1
-            """
+            WHERE tren_id = ?
+            """,
+            (tren_id,),
         ).fetchone()
 
     if fila is None:
@@ -32,9 +35,11 @@ def obtener_estado_tren() -> dict:
 
 def definir_inicio_programacion(
     proximo_inicio: datetime,
+    tren_id: int = 1,
 ) -> None:
     """
-    Inicia una nueva secuencia de programación.
+    Inicia una nueva secuencia de programación
+    para el tren indicado.
     """
     with obtener_conexion() as conexion:
         conexion.execute(
@@ -43,17 +48,22 @@ def definir_inicio_programacion(
             SET
                 proximo_inicio = ?,
                 programacion_activa = 1
-            WHERE id = 1
+            WHERE tren_id = ?
             """,
-            (proximo_inicio.isoformat(),),
+            (
+                proximo_inicio.isoformat(),
+                tren_id,
+            ),
         )
 
 
 def actualizar_proximo_inicio(
     proximo_inicio: datetime,
+    tren_id: int = 1,
 ) -> None:
     """
-    Actualiza el próximo momento disponible del tren.
+    Actualiza el próximo momento disponible
+    del tren indicado.
     """
     with obtener_conexion() as conexion:
         conexion.execute(
@@ -62,15 +72,20 @@ def actualizar_proximo_inicio(
             SET
                 proximo_inicio = ?,
                 programacion_activa = 1
-            WHERE id = 1
+            WHERE tren_id = ?
             """,
-            (proximo_inicio.isoformat(),),
+            (
+                proximo_inicio.isoformat(),
+                tren_id,
+            ),
         )
 
 
-def cerrar_programacion() -> None:
+def cerrar_programacion(
+    tren_id: int = 1,
+) -> None:
     """
-    Cierra la secuencia actual.
+    Cierra la secuencia actual del tren indicado.
     """
     with obtener_conexion() as conexion:
         conexion.execute(
@@ -79,6 +94,7 @@ def cerrar_programacion() -> None:
             SET
                 proximo_inicio = NULL,
                 programacion_activa = 0
-            WHERE id = 1
-            """
+            WHERE tren_id = ?
+            """,
+            (tren_id,),
         )

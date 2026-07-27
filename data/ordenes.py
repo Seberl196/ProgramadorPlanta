@@ -3,9 +3,12 @@ from datetime import datetime
 from data.conexion import obtener_conexion
 
 
-def obtener_ordenes() -> list[dict]:
+def obtener_ordenes(
+    tren_id: int,
+) -> list[dict]:
     """
-    Devuelve todas las OT no terminadas.
+    Devuelve todas las OT no terminadas
+    del tren indicado.
     """
     with obtener_conexion() as conexion:
         filas = conexion.execute(
@@ -13,16 +16,20 @@ def obtener_ordenes() -> list[dict]:
             SELECT *
             FROM ordenes
             WHERE estado != 'terminada'
+              AND tren_id = ?
             ORDER BY posicion ASC, id ASC
-            """
+            """,
+            (tren_id,),
         ).fetchall()
 
     return [dict(fila) for fila in filas]
 
 
-def obtener_ordenes_programables() -> list[dict]:
+def obtener_ordenes_programables(
+    tren_id: int,
+) -> list[dict]:
     """
-    Devuelve la cola activa del tren.
+    Devuelve la cola activa del tren indicado.
 
     Las OT pausadas quedan fuera de esta cola.
     """
@@ -35,16 +42,20 @@ def obtener_ordenes_programables() -> list[dict]:
                 'pendiente',
                 'en_produccion'
             )
+              AND tren_id = ?
             ORDER BY posicion ASC, id ASC
-            """
+            """,
+            (tren_id,),
         ).fetchall()
 
     return [dict(fila) for fila in filas]
 
 
-def obtener_ordenes_pausadas() -> list[dict]:
+def obtener_ordenes_pausadas(
+    tren_id: int,
+) -> list[dict]:
     """
-    Devuelve las OT pausadas.
+    Devuelve las OT pausadas del tren indicado.
     """
     with obtener_conexion() as conexion:
         filas = conexion.execute(
@@ -52,16 +63,20 @@ def obtener_ordenes_pausadas() -> list[dict]:
             SELECT *
             FROM ordenes
             WHERE estado = 'pausada'
+              AND tren_id = ?
             ORDER BY id ASC
-            """
+            """,
+            (tren_id,),
         ).fetchall()
 
     return [dict(fila) for fila in filas]
 
 
-def obtener_historial() -> list[dict]:
+def obtener_historial(
+    tren_id: int,
+) -> list[dict]:
     """
-    Devuelve las OT terminadas.
+    Devuelve las OT terminadas del tren indicado.
     """
     with obtener_conexion() as conexion:
         filas = conexion.execute(
@@ -69,8 +84,10 @@ def obtener_historial() -> list[dict]:
             SELECT *
             FROM ordenes
             WHERE estado = 'terminada'
+              AND tren_id = ?
             ORDER BY fecha_fin_real DESC, id DESC
-            """
+            """,
+            (tren_id,),
         ).fetchall()
 
     return [dict(fila) for fila in filas]
@@ -79,9 +96,11 @@ def obtener_historial() -> list[dict]:
 def agregar_orden(
     numero_ot: str,
     duracion_horas: float,
+    tren_id: int,
 ) -> None:
     """
-    Añade una OT al final de la cola activa.
+    Añade una OT al final de la cola activa
+    del tren indicado.
     """
     with obtener_conexion() as conexion:
         resultado = conexion.execute(
@@ -94,7 +113,9 @@ def agregar_orden(
                 'pendiente',
                 'en_produccion'
             )
-            """
+              AND tren_id = ?
+            """,
+            (tren_id,),
         ).fetchone()
 
         conexion.execute(
@@ -104,14 +125,16 @@ def agregar_orden(
                 numero_ot,
                 duracion_horas,
                 estado,
-                horas_producidas
+                horas_producidas,
+                tren_id
             )
-            VALUES (?, ?, ?, 'pendiente', 0)
+            VALUES (?, ?, ?, 'pendiente', 0, ?)
             """,
             (
                 int(resultado["siguiente_posicion"]),
                 numero_ot.strip(),
                 float(duracion_horas),
+                tren_id,
             ),
         )
 
@@ -152,6 +175,7 @@ def actualizar_orden(
 def mover_orden(
     orden_id: int,
     direccion: str,
+    tren_id: int,
 ) -> None:
     """
     Mueve una OT pendiente una posición.
@@ -162,7 +186,7 @@ def mover_orden(
     }:
         raise ValueError("La dirección debe ser 'subir' o 'bajar'.")
 
-    ordenes = obtener_ordenes_programables()
+    ordenes = obtener_ordenes_programables(tren_id)
 
     indice_actual = next(
         (indice for indice, orden in enumerate(ordenes) if orden["id"] == orden_id),
@@ -217,6 +241,7 @@ def mover_orden(
 
 def eliminar_orden(
     orden_id: int,
+    tren_id: int,
 ) -> None:
     """
     Elimina una OT pendiente.
@@ -226,17 +251,21 @@ def eliminar_orden(
             """
             DELETE FROM ordenes
             WHERE id = ?
+              AND  tren_id = ?
               AND estado = 'pendiente'
             """,
-            (orden_id,),
+            (orden_id, tren_id),
         )
 
-    reorganizar_posiciones()
+    reorganizar_posiciones(tren_id)
 
 
-def reorganizar_posiciones() -> None:
+def reorganizar_posiciones(
+    tren_id: int,
+) -> None:
     """
-    Reorganiza únicamente la cola activa.
+    Reorganiza únicamente la cola activa
+    del tren indicado.
     """
     with obtener_conexion() as conexion:
         ordenes = conexion.execute(
@@ -247,8 +276,10 @@ def reorganizar_posiciones() -> None:
                 'pendiente',
                 'en_produccion'
             )
+              AND tren_id = ?
             ORDER BY posicion ASC, id ASC
-            """
+            """,
+            (tren_id,),
         ).fetchall()
 
         for nueva_posicion, orden in enumerate(
@@ -270,6 +301,7 @@ def reorganizar_posiciones() -> None:
 
 def iniciar_produccion(
     orden_id: int,
+    tren_id: int,
 ) -> None:
     """
     Inicia la primera OT pendiente.
@@ -277,12 +309,14 @@ def iniciar_produccion(
     with obtener_conexion() as conexion:
         primera = conexion.execute(
             """
-            SELECT id
-            FROM ordenes
-            WHERE estado = 'pendiente'
-            ORDER BY posicion ASC, id ASC
-            LIMIT 1
-            """
+        SELECT id
+        FROM ordenes
+        WHERE estado = 'pendiente'
+        AND tren_id = ?
+        ORDER BY posicion ASC, id ASC
+        LIMIT 1
+        """,
+            (tren_id,),
         ).fetchone()
 
         if primera is None:
@@ -296,8 +330,10 @@ def iniciar_produccion(
             SELECT id
             FROM ordenes
             WHERE estado = 'en_produccion'
+            AND tren_id = ?
             LIMIT 1
-            """
+            """,
+            (tren_id,),
         ).fetchone()
 
         if activa is not None:
@@ -325,6 +361,7 @@ def pausar_produccion(
     orden_id: int,
     horas_producidas: float,
     proximo_inicio: datetime,
+    tren_id: int,
 ) -> None:
     """
     Pausa una OT, guarda el avance y libera el tren.
@@ -339,8 +376,12 @@ def pausar_produccion(
                 horas_producidas
             FROM ordenes
             WHERE id = ?
+            AND tren_id = ?
             """,
-            (orden_id,),
+            (
+                orden_id,
+                tren_id,
+            ),
         ).fetchone()
 
         if orden is None:
@@ -387,16 +428,20 @@ def pausar_produccion(
             SET
                 proximo_inicio = ?,
                 programacion_activa = 1
-            WHERE id = 1
+            WHERE tren_id = ?
             """,
-            (proximo_inicio.isoformat(),),
+            (
+                proximo_inicio.isoformat(),
+                tren_id,
+            ),
         )
 
-    reorganizar_posiciones()
+    reorganizar_posiciones(tren_id)
 
 
 def reanudar_produccion(
     orden_id: int,
+    tren_id: int,
 ) -> None:
     """
     Reanuda una OT pausada y la coloca al frente.
@@ -407,8 +452,12 @@ def reanudar_produccion(
             SELECT id, estado
             FROM ordenes
             WHERE id = ?
+            AND tren_id = ?
             """,
-            (orden_id,),
+            (
+                orden_id,
+                tren_id,
+            ),
         ).fetchone()
 
         if orden is None:
@@ -422,8 +471,10 @@ def reanudar_produccion(
             SELECT id
             FROM ordenes
             WHERE estado = 'en_produccion'
+            AND tren_id = ?
             LIMIT 1
-            """
+            """,
+            (tren_id,),
         ).fetchone()
 
         if activa is not None:
@@ -436,7 +487,9 @@ def reanudar_produccion(
             UPDATE ordenes
             SET posicion = posicion + 1
             WHERE estado = 'pendiente'
-            """
+            AND tren_id = ?
+            """,
+            (tren_id,),
         )
 
         conexion.execute(
@@ -450,52 +503,56 @@ def reanudar_produccion(
             (orden_id,),
         )
 
-    reorganizar_posiciones()
+    reorganizar_posiciones(tren_id)
 
 
 def terminar_produccion(
     orden_id: int,
     fecha_fin_real: datetime,
     proximo_inicio: datetime,
+    tren_id: int,
 ) -> None:
     """
-    Finaliza una OT y actualiza el próximo inicio
-    disponible del tren.
+    Termina una OT en producción y actualiza
+    el estado de programación del tren indicado.
     """
-    fecha_fin_texto = fecha_fin_real.isoformat()
-
-    proximo_inicio_texto = proximo_inicio.isoformat()
-
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
-            SELECT id, estado
+            SELECT
+                id,
+                estado,
+                duracion_horas
             FROM ordenes
             WHERE id = ?
+              AND tren_id = ?
             """,
-            (orden_id,),
+            (
+                orden_id,
+                tren_id,
+            ),
         ).fetchone()
 
         if orden is None:
             raise ValueError("La OT seleccionada no existe.")
 
-        if orden["estado"] not in {
-            "en_produccion",
-            "pausada",
-        }:
-            raise ValueError("Solo se puede terminar una OT en producción o pausada.")
+        if orden["estado"] != "en_produccion":
+            raise ValueError("Solo se puede terminar una OT que esté en producción.")
 
         conexion.execute(
             """
             UPDATE ordenes
             SET
                 estado = 'terminada',
-                fecha_fin_real = ?
+                fecha_fin_real = ?,
+                horas_producidas = duracion_horas
             WHERE id = ?
+              AND tren_id = ?
             """,
             (
-                fecha_fin_texto,
+                fecha_fin_real.isoformat(),
                 orden_id,
+                tren_id,
             ),
         )
 
@@ -504,23 +561,27 @@ def terminar_produccion(
             SELECT COUNT(*) AS cantidad
             FROM ordenes
             WHERE estado != 'terminada'
-            """
+              AND tren_id = ?
+            """,
+            (tren_id,),
         ).fetchone()
 
-        ordenes_activas = int(resultado["cantidad"])
+        cantidad_ordenes_activas = int(resultado["cantidad"])
 
-        if ordenes_activas > 0:
+        if cantidad_ordenes_activas > 0:
             conexion.execute(
                 """
                 UPDATE estado_tren
                 SET
                     proximo_inicio = ?,
                     programacion_activa = 1
-                WHERE id = 1
+                WHERE tren_id = ?
                 """,
-                (proximo_inicio_texto,),
+                (
+                    proximo_inicio.isoformat(),
+                    tren_id,
+                ),
             )
-
         else:
             conexion.execute(
                 """
@@ -528,8 +589,9 @@ def terminar_produccion(
                 SET
                     proximo_inicio = NULL,
                     programacion_activa = 0
-                WHERE id = 1
-                """
+                WHERE tren_id = ?
+                """,
+                (tren_id,),
             )
 
-    reorganizar_posiciones()
+    reorganizar_posiciones(tren_id)

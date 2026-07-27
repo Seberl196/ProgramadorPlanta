@@ -1,6 +1,5 @@
 from datetime import datetime, time, timedelta
 
-
 HORA_INICIO_JORNADA = time(hour=6, minute=0)
 HORA_FIN_JORNADA = time(hour=22, minute=0)
 
@@ -96,8 +95,7 @@ def crear_programacion(
 
                 inicio_manual = ajustar_inicio_laboral(inicio_manual)
 
-                if inicio_manual > inicio_orden:
-                    inicio_orden = inicio_manual
+                inicio_orden = max(inicio_orden, inicio_manual)
 
             except (TypeError, ValueError):
                 # Si el valor guardado no es válido,
