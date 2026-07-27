@@ -1,7 +1,16 @@
 from datetime import datetime
+
 import plotly.graph_objects as go
 import streamlit as st
 
+from core.gantt import (
+    agrupar_tramos_por_dia,
+    calcular_horas_programadas,
+    calcular_horas_restantes,
+    convertir_hora_a_decimal,
+    obtener_nombre_estado,
+    obtener_titulo_dia,
+)
 from core.programacion import (
     crear_programacion,
     formatear_fecha_hora,
@@ -10,15 +19,6 @@ from data.ordenes import (
     obtener_ordenes_pausadas,
     obtener_ordenes_programables,
 )
-from core.gantt import (
-    agrupar_tramos_por_dia,
-    calcular_horas_programadas,
-    calcular_horas_restantes,
-    convertir_hora_a_decimal,
-    obtener_titulo_dia,
-    obtener_nombre_estado,
-)
-
 
 COLORES_ESTADO = {
     "pendiente": "#7C8DB5",
@@ -186,7 +186,7 @@ def _mostrar_resumen(
 
 
 def _mostrar_pausadas(
-        tren_id: int,
+    tren_id: int,
 ) -> None:
     """
     Muestra un resumen de las OT pausadas.
@@ -205,7 +205,7 @@ def _mostrar_pausadas(
 
 def mostrar_gantt_diario(
     inicio_programacion: datetime | None,
-    tren_id = int,
+    tren_id: int,
 ) -> None:
     """
     Muestra una vista Gantt separada por jornadas.

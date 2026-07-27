@@ -3,6 +3,13 @@ from datetime import datetime, timedelta
 import plotly.express as px
 import streamlit as st
 
+from core.gantt import (
+    calcular_horas_programadas,
+    calcular_horas_restantes,
+    dividir_programacion_en_tramos,
+    obtener_nombre_dia_corto,
+    obtener_nombre_estado,
+)
 from core.programacion import (
     HORA_FIN_JORNADA,
     HORA_INICIO_JORNADA,
@@ -12,13 +19,6 @@ from core.programacion import (
 from data.ordenes import (
     obtener_ordenes_pausadas,
     obtener_ordenes_programables,
-)
-from core.gantt import (
-    calcular_horas_programadas,
-    calcular_horas_restantes,
-    dividir_programacion_en_tramos,
-    obtener_nombre_dia_corto,
-    obtener_nombre_estado,
 )
 
 
@@ -207,7 +207,7 @@ def _mostrar_resumen(
 
 
 def _mostrar_ot_pausadas(
-        tren_id: int,
+    tren_id: int,
 ) -> None:
     """
     Muestra un resumen de las OT pausadas.
@@ -229,7 +229,7 @@ def _mostrar_ot_pausadas(
 
 def mostrar_gantt(
     inicio_programacion: datetime | None,
-    tren_id : int,
+    tren_id: int,
 ) -> None:
     """
     Muestra el Gantt de la cola activa del tren.

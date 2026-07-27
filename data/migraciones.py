@@ -10,9 +10,7 @@ def _obtener_columnas(
     """
     Devuelve los nombres de las columnas de una tabla.
     """
-    filas = conexion.execute(
-        f"PRAGMA table_info({nombre_tabla})"
-    ).fetchall()
+    filas = conexion.execute(f"PRAGMA table_info({nombre_tabla})").fetchall()
 
     return {fila["name"] for fila in filas}
 
@@ -305,10 +303,7 @@ def crear_tabla_estado_tren() -> None:
             )
             VALUES (?, NULL, 0)
             """,
-            [
-                (tren["id"],)
-                for tren in trenes
-            ],
+            [(tren["id"],) for tren in trenes],
         )
 
 

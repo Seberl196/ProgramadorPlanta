@@ -175,8 +175,7 @@ def mostrar_programacion(
     )
 
     hay_ot_en_produccion = any(
-        orden["estado"] == "en_produccion"
-        for orden in ordenes_programables
+        orden["estado"] == "en_produccion" for orden in ordenes_programables
     )
 
     if ordenes_pausadas:
@@ -199,8 +198,7 @@ def mostrar_programacion(
 
     if inicio_programacion is None:
         st.warning(
-            "Debes definir el inicio de la programación "
-            "antes de calcular los horarios."
+            "Debes definir el inicio de la programación antes de calcular los horarios."
         )
         return
 

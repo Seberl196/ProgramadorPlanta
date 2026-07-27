@@ -92,6 +92,7 @@ def obtener_historial(
 
     return [dict(fila) for fila in filas]
 
+
 def agregar_orden(
     numero_ot: str,
     duracion_horas: float,
@@ -253,8 +254,7 @@ def eliminar_orden(
               AND  tren_id = ?
               AND estado = 'pendiente'
             """,
-            (orden_id,
-             tren_id),
+            (orden_id, tren_id),
         )
 
     reorganizar_posiciones(tren_id)
@@ -298,6 +298,7 @@ def reorganizar_posiciones(
                 ),
             )
 
+
 def iniciar_produccion(
     orden_id: int,
     tren_id: int,
@@ -307,7 +308,7 @@ def iniciar_produccion(
     """
     with obtener_conexion() as conexion:
         primera = conexion.execute(
-        """
+            """
         SELECT id
         FROM ordenes
         WHERE estado = 'pendiente'
@@ -315,8 +316,8 @@ def iniciar_produccion(
         ORDER BY posicion ASC, id ASC
         LIMIT 1
         """,
-        (tren_id,),
-    ).fetchone()
+            (tren_id,),
+        ).fetchone()
 
         if primera is None:
             raise ValueError("No hay una OT pendiente para iniciar.")
@@ -377,7 +378,10 @@ def pausar_produccion(
             WHERE id = ?
             AND tren_id = ?
             """,
-            (orden_id,tren_id,),
+            (
+                orden_id,
+                tren_id,
+            ),
         ).fetchone()
 
         if orden is None:
@@ -450,7 +454,10 @@ def reanudar_produccion(
             WHERE id = ?
             AND tren_id = ?
             """,
-            (orden_id, tren_id,),
+            (
+                orden_id,
+                tren_id,
+            ),
         ).fetchone()
 
         if orden is None:
@@ -482,7 +489,7 @@ def reanudar_produccion(
             WHERE estado = 'pendiente'
             AND tren_id = ?
             """,
-            (tren_id,),       
+            (tren_id,),
         )
 
         conexion.execute(
@@ -530,9 +537,7 @@ def terminar_produccion(
             raise ValueError("La OT seleccionada no existe.")
 
         if orden["estado"] != "en_produccion":
-            raise ValueError(
-                "Solo se puede terminar una OT que esté en producción."
-            )
+            raise ValueError("Solo se puede terminar una OT que esté en producción.")
 
         conexion.execute(
             """
@@ -590,4 +595,3 @@ def terminar_produccion(
             )
 
     reorganizar_posiciones(tren_id)
-
