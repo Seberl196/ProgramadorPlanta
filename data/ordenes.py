@@ -1,117 +1,7 @@
 from datetime import datetime
-
+from data.programacion_ordenes import reorganizar_posiciones
 from data.conexion import obtener_conexion
-
-def obtener_tren_id_de_orden(
-    orden_id: int,
-) -> int:
-    """
-    Obtiene el tren al que pertenece una OT.
-    """
-    with obtener_conexion() as conexion:
-        fila = conexion.execute(
-            """
-            SELECT tren_id
-            FROM ordenes
-            WHERE id = ?
-            """,
-            (orden_id,),
-        ).fetchone()
-
-    if fila is None:
-        raise ValueError("La OT seleccionada no existe.")
-
-    return int(fila["tren_id"])
-
-def obtener_ordenes(
-    tren_id: int,
-) -> list[dict]:
-    """
-    Devuelve todas las OT no terminadas
-    del tren indicado.
-    """
-    with obtener_conexion() as conexion:
-        filas = conexion.execute(
-            """
-            SELECT *
-            FROM ordenes
-            WHERE estado != 'terminada'
-              AND tren_id = ?
-            ORDER BY posicion ASC, id ASC
-            """,
-            (tren_id,),
-        ).fetchall()
-
-    return [dict(fila) for fila in filas]
-
-
-def obtener_ordenes_programables(
-    tren_id: int,
-) -> list[dict]:
-    """
-    Devuelve la cola activa del tren indicado.
-
-    Las OT pausadas quedan fuera de esta cola.
-    """
-    with obtener_conexion() as conexion:
-        filas = conexion.execute(
-            """
-            SELECT *
-            FROM ordenes
-            WHERE estado IN (
-                'pendiente',
-                'en_produccion'
-            )
-              AND tren_id = ?
-            ORDER BY posicion ASC, id ASC
-            """,
-            (tren_id,),
-        ).fetchall()
-
-    return [dict(fila) for fila in filas]
-
-
-def obtener_ordenes_pausadas(
-    tren_id: int,
-) -> list[dict]:
-    """
-    Devuelve las OT pausadas del tren indicado.
-    """
-    with obtener_conexion() as conexion:
-        filas = conexion.execute(
-            """
-            SELECT *
-            FROM ordenes
-            WHERE estado = 'pausada'
-              AND tren_id = ?
-            ORDER BY id ASC
-            """,
-            (tren_id,),
-        ).fetchall()
-
-    return [dict(fila) for fila in filas]
-
-
-def obtener_historial(
-    tren_id: int,
-) -> list[dict]:
-    """
-    Devuelve las OT terminadas del tren indicado.
-    """
-    with obtener_conexion() as conexion:
-        filas = conexion.execute(
-            """
-            SELECT *
-            FROM ordenes
-            WHERE estado = 'terminada'
-              AND tren_id = ?
-            ORDER BY fecha_fin_real DESC, id DESC
-            """,
-            (tren_id,),
-        ).fetchall()
-
-    return [dict(fila) for fila in filas]
-
+from data.consultas_ordenes import obtener_tren_id_de_orden
 
 def agregar_orden(
     numero_ot: str,
@@ -133,7 +23,8 @@ def agregar_orden(
                 'pendiente',
                 'en_produccion'
             )
-              AND tren_id = ?
+
+                          AND tren_id = ?
             """,
             (tren_id,),
         ).fetchone()
@@ -192,74 +83,6 @@ def actualizar_orden(
         )
 
 
-def mover_orden(
-    orden_id: int,
-    direccion: str,
-) -> None:
-    """
-    Mueve una OT pendiente una posición.
-    """
-    if direccion not in {
-        "subir",
-        "bajar",
-    }:
-        raise ValueError("La dirección debe ser 'subir' o 'bajar'.")
-
-    tren_id = obtener_tren_id_de_orden(orden_id)
-
-    ordenes = obtener_ordenes_programables(tren_id)
-
-    indice_actual = next(
-        (indice for indice, orden in enumerate(ordenes) if orden["id"] == orden_id),
-        None,
-    )
-
-    if indice_actual is None:
-        return
-
-    orden_actual = ordenes[indice_actual]
-
-    if orden_actual["estado"] != "pendiente":
-        return
-
-    desplazamiento = -1 if direccion == "subir" else 1
-
-    indice_vecino = indice_actual + desplazamiento
-
-    if not 0 <= indice_vecino < len(ordenes):
-        return
-
-    orden_vecina = ordenes[indice_vecino]
-
-    if orden_vecina["estado"] != "pendiente":
-        return
-
-    with obtener_conexion() as conexion:
-        conexion.execute(
-            """
-            UPDATE ordenes
-            SET posicion = ?
-            WHERE id = ?
-            """,
-            (
-                orden_vecina["posicion"],
-                orden_actual["id"],
-            ),
-        )
-
-        conexion.execute(
-            """
-            UPDATE ordenes
-            SET posicion = ?
-            WHERE id = ?
-            """,
-            (
-                orden_actual["posicion"],
-                orden_vecina["id"],
-            ),
-        )
-
-
 def eliminar_orden(
     orden_id: int,
     tren_id: int,
@@ -279,45 +102,6 @@ def eliminar_orden(
         )
 
     reorganizar_posiciones(tren_id)
-
-
-def reorganizar_posiciones(
-    tren_id: int,
-) -> None:
-    """
-    Reorganiza únicamente la cola activa
-    del tren indicado.
-    """
-    with obtener_conexion() as conexion:
-        ordenes = conexion.execute(
-            """
-            SELECT id
-            FROM ordenes
-            WHERE estado IN (
-                'pendiente',
-                'en_produccion'
-            )
-              AND tren_id = ?
-            ORDER BY posicion ASC, id ASC
-            """,
-            (tren_id,),
-        ).fetchall()
-
-        for nueva_posicion, orden in enumerate(
-            ordenes,
-            start=1,
-        ):
-            conexion.execute(
-                """
-                UPDATE ordenes
-                SET posicion = ?
-                WHERE id = ?
-                """,
-                (
-                    nueva_posicion,
-                    orden["id"],
-                ),
-            )
 
 
 def iniciar_produccion(
@@ -542,7 +326,6 @@ def terminar_produccion(
     Termina una OT en producción y actualiza
     el estado de programación del tren indicado.
     """
-
     tren_id = obtener_tren_id_de_orden(orden_id)
     
     with obtener_conexion() as conexion:

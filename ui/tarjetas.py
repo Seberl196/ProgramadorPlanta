@@ -7,7 +7,7 @@ from core.programacion import (
     crear_programacion,
     formatear_fecha_hora,
 )
-from data.ordenes import (
+from data.consultas_ordenes import (
     obtener_ordenes_pausadas,
     obtener_ordenes_programables,
 )

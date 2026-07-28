@@ -2,9 +2,9 @@ import streamlit as st
 
 from data.ordenes import (
     iniciar_produccion,
-    mover_orden,
     reanudar_produccion,
 )
+from data.programacion_ordenes import mover_orden
 from ui.dialogos_ot import (
     mostrar_dialogo_edicion,
     mostrar_dialogo_eliminacion,
