@@ -85,11 +85,9 @@ def pausar_produccion(
                 horas_producidas
             FROM ordenes
             WHERE id = ?
-            AND tren_id = ?
             """,
             (
                 orden_id,
-                tren_id,
             ),
         ).fetchone()
 
@@ -163,11 +161,9 @@ def reanudar_produccion(
             SELECT id, estado
             FROM ordenes
             WHERE id = ?
-            AND tren_id = ?
             """,
             (
                 orden_id,
-                tren_id,
             ),
         ).fetchone()
 
@@ -237,11 +233,9 @@ def terminar_produccion(
                 duracion_horas
             FROM ordenes
             WHERE id = ?
-              AND tren_id = ?
             """,
             (
                 orden_id,
-                tren_id,
             ),
         ).fetchone()
 
@@ -259,12 +253,10 @@ def terminar_produccion(
                 fecha_fin_real = ?,
                 horas_producidas = duracion_horas
             WHERE id = ?
-              AND tren_id = ?
             """,
             (
                 fecha_fin_real.isoformat(),
                 orden_id,
-                tren_id,
             ),
         )
 
