@@ -4,7 +4,7 @@ from datetime import datetime
 import streamlit as st
 
 from core.programacion import ajustar_inicio_laboral
-from data.ordenes import (
+from data.produccion import (
     pausar_produccion,
     terminar_produccion,
 )
@@ -69,7 +69,6 @@ def mostrar_dialogo_pausa(
                     orden_id=orden["id"],
                     horas_producidas=horas_producidas,
                     proximo_inicio=inicio_siguiente_ot,
-                    tren_id=orden["tren_id"],
                 )
 
                 guardar_mensaje(
@@ -166,7 +165,6 @@ def mostrar_dialogo_terminar(
                     orden_id=orden["id"],
                     fecha_fin_real=fin_real,
                     proximo_inicio=inicio_siguiente_ot,
-                    tren_id=orden["tren_id"],
                 )
 
                 guardar_mensaje(

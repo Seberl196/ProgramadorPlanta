@@ -7,7 +7,7 @@ from core.programacion import (
     crear_programacion,
     formatear_fecha_hora,
 )
-from data.ordenes import (
+from data.consultas_ordenes import (
     obtener_ordenes_pausadas,
     obtener_ordenes_programables,
 )
@@ -89,7 +89,6 @@ def mostrar_tarjeta_orden(
     orden: dict,
     ultima_posicion: int,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra una tarjeta de la cola activa.
@@ -111,20 +110,17 @@ def mostrar_tarjeta_orden(
                     orden=orden,
                     ultima_posicion=ultima_posicion,
                     hay_ot_en_produccion=hay_ot_en_produccion,
-                    tren_id=tren_id,
                 )
 
             elif orden["estado"] == "en_produccion":
                 mostrar_acciones_en_produccion(
                     orden=orden,
-                    tren_id=tren_id,
                 )
 
 
 def _mostrar_tarjeta_pausada(
     orden: dict,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra una OT pausada fuera de la cola activa.
@@ -152,7 +148,6 @@ def _mostrar_tarjeta_pausada(
             mostrar_acciones_pausada(
                 orden=orden,
                 hay_ot_en_produccion=hay_ot_en_produccion,
-                tren_id=tren_id,
             )
 
 
@@ -185,7 +180,6 @@ def mostrar_programacion(
             _mostrar_tarjeta_pausada(
                 orden=orden,
                 hay_ot_en_produccion=hay_ot_en_produccion,
-                tren_id=tren_id,
             )
 
         st.divider()
@@ -214,5 +208,4 @@ def mostrar_programacion(
             orden=orden,
             ultima_posicion=ultima_posicion,
             hay_ot_en_produccion=hay_ot_en_produccion,
-            tren_id=tren_id,
         )

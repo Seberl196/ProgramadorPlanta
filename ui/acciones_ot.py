@@ -1,10 +1,10 @@
 import streamlit as st
 
-from data.ordenes import (
+from data.produccion import (
     iniciar_produccion,
-    mover_orden,
     reanudar_produccion,
 )
+from data.programacion_ordenes import mover_orden
 from ui.dialogos_ot import (
     mostrar_dialogo_edicion,
     mostrar_dialogo_eliminacion,
@@ -20,11 +20,11 @@ def mostrar_acciones_pendiente(
     orden: dict,
     ultima_posicion: int,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones disponibles para una OT pendiente.
     """
+
     columna_subir, columna_bajar = st.columns(2)
 
     with columna_subir:
@@ -41,7 +41,6 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="subir",
-                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -61,7 +60,6 @@ def mostrar_acciones_pendiente(
             mover_orden(
                 orden_id=orden["id"],
                 direccion="bajar",
-                tren_id=tren_id,
             )
 
             guardar_mensaje(
@@ -89,8 +87,7 @@ def mostrar_acciones_pendiente(
         ):
             mostrar_dialogo_eliminacion(orden)
 
-    if orden["posicion"] == 1:
-        if st.button(
+        if orden["posicion"] == 1 and st.button(
             "▶️ Iniciar producción",
             key=f"iniciar_{orden['id']}",
             type="primary",
@@ -100,7 +97,6 @@ def mostrar_acciones_pendiente(
             try:
                 iniciar_produccion(
                     orden["id"],
-                    tren_id=tren_id,
                 )
 
                 guardar_mensaje(
@@ -116,7 +112,6 @@ def mostrar_acciones_pendiente(
 
 def mostrar_acciones_en_produccion(
     orden: dict,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT en producción.
@@ -140,11 +135,11 @@ def mostrar_acciones_en_produccion(
 def mostrar_acciones_pausada(
     orden: dict,
     hay_ot_en_produccion: bool,
-    tren_id: int,
 ) -> None:
     """
     Muestra las acciones de una OT pausada.
     """
+
     if st.button(
         "▶️ Reanudar producción",
         key=f"reanudar_{orden['id']}",
@@ -155,7 +150,6 @@ def mostrar_acciones_pausada(
         try:
             reanudar_produccion(
                 orden["id"],
-                tren_id=tren_id,
             )
 
             guardar_mensaje(

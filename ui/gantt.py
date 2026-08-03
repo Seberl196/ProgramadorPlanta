@@ -16,7 +16,7 @@ from core.programacion import (
     crear_programacion,
     formatear_fecha_hora,
 )
-from data.ordenes import (
+from data.consultas_ordenes import (
     obtener_ordenes_pausadas,
     obtener_ordenes_programables,
 )
@@ -173,7 +173,7 @@ def _añadir_separacion_dias(
             yref="paper",
             text=f"<b>{obtener_nombre_dia_corto(dia)} {dia.strftime('%d/%m')}</b>",
             showarrow=False,
-            font=dict(size=15),
+            font={"size": 15},
         )
 
 
