@@ -4,7 +4,7 @@ from datetime import datetime
 import streamlit as st
 
 from core.programacion import ajustar_inicio_laboral
-from data.ordenes import (
+from data.produccion import (
     pausar_produccion,
     terminar_produccion,
 )
