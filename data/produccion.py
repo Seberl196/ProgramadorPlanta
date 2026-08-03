@@ -4,6 +4,7 @@ from data.conexion import obtener_conexion
 from data.consultas_ordenes import obtener_tren_id_de_orden
 from data.programacion_ordenes import reorganizar_posiciones
 
+
 def iniciar_produccion(
     orden_id: int,
 ) -> None:
@@ -86,9 +87,7 @@ def pausar_produccion(
             FROM ordenes
             WHERE id = ?
             """,
-            (
-                orden_id,
-            ),
+            (orden_id,),
         ).fetchone()
 
         if orden is None:
@@ -162,9 +161,7 @@ def reanudar_produccion(
             FROM ordenes
             WHERE id = ?
             """,
-            (
-                orden_id,
-            ),
+            (orden_id,),
         ).fetchone()
 
         if orden is None:
@@ -223,7 +220,7 @@ def terminar_produccion(
     el estado de programación del tren indicado.
     """
     tren_id = obtener_tren_id_de_orden(orden_id)
-    
+
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
@@ -234,9 +231,7 @@ def terminar_produccion(
             FROM ordenes
             WHERE id = ?
             """,
-            (
-                orden_id,
-            ),
+            (orden_id,),
         ).fetchone()
 
         if orden is None:

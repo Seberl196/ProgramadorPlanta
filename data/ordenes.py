@@ -1,7 +1,9 @@
 from datetime import datetime
-from data.programacion_ordenes import reorganizar_posiciones
+
 from data.conexion import obtener_conexion
 from data.consultas_ordenes import obtener_tren_id_de_orden
+from data.programacion_ordenes import reorganizar_posiciones
+
 
 def agregar_orden(
     numero_ot: str,

@@ -1,5 +1,6 @@
 from data.conexion import obtener_conexion
 
+
 def obtener_tren_id_de_orden(
     orden_id: int,
 ) -> int:
@@ -20,6 +21,7 @@ def obtener_tren_id_de_orden(
         raise ValueError("La OT seleccionada no existe.")
 
     return int(fila["tren_id"])
+
 
 def obtener_ordenes(
     tren_id: int,

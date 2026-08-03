@@ -87,8 +87,7 @@ def mostrar_acciones_pendiente(
         ):
             mostrar_dialogo_eliminacion(orden)
 
-    if orden["posicion"] == 1:
-        if st.button(
+        if orden["posicion"] == 1 and st.button(
             "▶️ Iniciar producción",
             key=f"iniciar_{orden['id']}",
             type="primary",

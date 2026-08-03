@@ -173,7 +173,7 @@ def _añadir_separacion_dias(
             yref="paper",
             text=f"<b>{obtener_nombre_dia_corto(dia)} {dia.strftime('%d/%m')}</b>",
             showarrow=False,
-            font=dict(size=15),
+            font={"size": 15},
         )
 
 

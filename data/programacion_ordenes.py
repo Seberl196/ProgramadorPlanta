@@ -1,5 +1,6 @@
 from data.conexion import obtener_conexion
 
+
 def mover_orden(
     orden_id: int,
     direccion: str,
@@ -33,17 +34,9 @@ def mover_orden(
         if orden_actual["estado"] != "pendiente":
             return
 
-        direccion_sql = (
-            "DESC"
-            if direccion == "subir"
-            else "ASC"
-        )
+        direccion_sql = "DESC" if direccion == "subir" else "ASC"
 
-        comparador = (
-            "<"
-            if direccion == "subir"
-            else ">"
-        )
+        comparador = "<" if direccion == "subir" else ">"
 
         orden_vecina = conexion.execute(
             f"""
