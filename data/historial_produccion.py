@@ -36,3 +36,34 @@ def registrar_evento_produccion(
                 horas_producidas,
             ),
         )
+
+def obtener_historial_produccion(
+    tren_id: int,
+) -> list[dict]:
+    """
+    Obtiene el historial de eventos de producción de un tren.
+    """
+    with obtener_conexion() as conexion:
+        filas = conexion.execute(
+            """
+            SELECT
+                hp.id,
+                hp.orden_id,
+                o.numero_ot,
+                hp.tren_id,
+                t.nombre AS nombre_tren,
+                hp.evento,
+                hp.fecha_hora,
+                hp.horas_producidas
+            FROM historial_produccion AS hp
+            INNER JOIN ordenes AS o
+                ON o.id = hp.orden_id
+            INNER JOIN trenes AS t
+                ON t.id = hp.tren_id
+            WHERE hp.tren_id = ?
+            ORDER BY hp.fecha_hora DESC, hp.id DESC
+            """,
+            (tren_id,),
+        ).fetchall()
+
+    return [dict(fila) for fila in filas]
