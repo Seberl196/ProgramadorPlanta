@@ -306,6 +306,54 @@ def crear_tabla_estado_tren() -> None:
             [(tren["id"],) for tren in trenes],
         )
 
+def crear_tabla_historial_produccion() -> None:
+    """
+    Crea el historial de eventos de producción de las OT.
+    """
+    with obtener_conexion() as conexion:
+        conexion.execute(
+            """
+            CREATE TABLE IF NOT EXISTS historial_produccion (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                orden_id INTEGER NOT NULL,
+                tren_id INTEGER NOT NULL,
+                evento TEXT NOT NULL,
+                fecha_hora TEXT NOT NULL,
+                horas_producidas REAL,
+
+                FOREIGN KEY (orden_id)
+                    REFERENCES ordenes(id),
+
+                FOREIGN KEY (tren_id)
+                    REFERENCES trenes(id),
+
+                CHECK (
+                    evento IN (
+                        'iniciada',
+                        'pausada',
+                        'reanudada',
+                        'terminada'
+                    )
+                )
+            )
+            """
+        )
+
+        conexion.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                idx_historial_produccion_orden_id
+            ON historial_produccion (orden_id)
+            """
+        )
+
+        conexion.execute(
+            """
+            CREATE INDEX IF NOT EXISTS
+                idx_historial_produccion_tren_id
+            ON historial_produccion (tren_id)
+            """
+        )
 
 def inicializar_base_de_datos() -> None:
     """
@@ -315,3 +363,4 @@ def inicializar_base_de_datos() -> None:
     crear_tabla_maquinas()
     crear_tabla_ordenes()
     crear_tabla_estado_tren()
+    crear_tabla_historial_produccion()
