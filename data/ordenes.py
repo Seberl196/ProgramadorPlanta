@@ -23,8 +23,7 @@ def agregar_orden(
                 'pendiente',
                 'en_produccion'
             )
-
-                          AND tren_id = ?
+            AND tren_id = ?
             """,
             (tren_id,),
         ).fetchone()
@@ -85,20 +84,20 @@ def actualizar_orden(
 
 def eliminar_orden(
     orden_id: int,
-    tren_id: int,
 ) -> None:
     """
     Elimina una OT pendiente.
     """
+    tren_id = obtener_tren_id_de_orden(orden_id)
+
     with obtener_conexion() as conexion:
         conexion.execute(
             """
             DELETE FROM ordenes
             WHERE id = ?
-              AND  tren_id = ?
               AND estado = 'pendiente'
             """,
-            (orden_id, tren_id),
+            (orden_id,),
         )
 
     reorganizar_posiciones(tren_id)
