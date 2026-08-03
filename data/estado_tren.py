@@ -4,7 +4,7 @@ from data.conexion import obtener_conexion
 
 
 def obtener_estado_tren(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> dict:
     """
     Devuelve el estado persistente del tren indicado.
@@ -35,7 +35,7 @@ def obtener_estado_tren(
 
 def definir_inicio_programacion(
     proximo_inicio: datetime,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Inicia una nueva secuencia de programación
@@ -59,7 +59,7 @@ def definir_inicio_programacion(
 
 def actualizar_proximo_inicio(
     proximo_inicio: datetime,
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Actualiza el próximo momento disponible
@@ -82,7 +82,7 @@ def actualizar_proximo_inicio(
 
 
 def cerrar_programacion(
-    tren_id: int = 1,
+    tren_id: int,
 ) -> None:
     """
     Cierra la secuencia actual del tren indicado.

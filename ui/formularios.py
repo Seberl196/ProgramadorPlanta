@@ -25,7 +25,7 @@ def mostrar_formulario_inicio_programacion(
     Si ya existe una programación activa, devuelve el
     próximo inicio guardado.
     """
-    estado_tren = obtener_estado_tren()
+    estado_tren = obtener_estado_tren(tren_id)
 
     if not estado_tren["programacion_activa"]:
         st.subheader("Inicio de nueva programación")
