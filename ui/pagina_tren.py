@@ -2,7 +2,6 @@ import streamlit as st
 
 from ui.formularios import (
     mostrar_formulario_inicio_programacion,
-    mostrar_formulario_nueva_ot,
 )
 from ui.gantt import mostrar_gantt
 from ui.gantt_diario import mostrar_gantt_diario
@@ -42,11 +41,6 @@ def mostrar_pagina_tren(
     )
 
     with pestana_kanban:
-        mostrar_formulario_nueva_ot(
-            tren_id=tren_id,
-        )
-
-        st.divider()
 
         mostrar_programacion(
             inicio_programacion,

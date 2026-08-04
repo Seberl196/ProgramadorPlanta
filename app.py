@@ -8,6 +8,7 @@ from ui.mensajes import (
     mostrar_mensajes,
 )
 from ui.pagina_tren import mostrar_pagina_tren
+from ui.pagina_nueva_ot import mostrar_pagina_nueva_ot
 
 st.set_page_config(
     page_title="Programador de Planta",
@@ -36,6 +37,27 @@ if not trenes:
 if "tren_id_seleccionado" not in st.session_state:
     st.session_state.tren_id_seleccionado = trenes[0]["id"]
 
+if "pagina_actual" not in st.session_state:
+    st.session_state.pagina_actual = "tren"
+
+st.sidebar.subheader("Navegación")
+
+if st.sidebar.button(
+    "➕ Nueva OT",
+    use_container_width=True,
+):
+    st.session_state.pagina_actual = "nueva_ot"
+    st.rerun()
+
+if st.sidebar.button(
+    "📋 Historial",
+    use_container_width=True,
+):
+    st.session_state.pagina_actual = "historial"
+    st.rerun()
+
+st.sidebar.divider()
+
 st.sidebar.subheader("Trenes")
 
 for tren in trenes:
@@ -45,6 +67,7 @@ for tren in trenes:
         use_container_width=True,
     ):
         st.session_state.tren_id_seleccionado = tren["id"]
+        st.session_state.pagina_actual = "tren"
         st.rerun()
 
 tren_seleccionado = next(
@@ -56,7 +79,16 @@ tren_seleccionado = next(
 tren_id_seleccionado = tren_seleccionado["id"]
 nombre_tren_seleccionado = tren_seleccionado["nombre"]
 
-mostrar_pagina_tren(
-    tren_id=tren_id_seleccionado,
-    nombre_tren=nombre_tren_seleccionado,
-)
+if st.session_state.pagina_actual == "tren":
+    mostrar_pagina_tren(
+        tren_id=tren_id_seleccionado,
+        nombre_tren=nombre_tren_seleccionado,
+    )
+
+elif st.session_state.pagina_actual == "nueva_ot":
+    st.header("Nueva orden de trabajo")
+    st.info("Página en construcción.")
+
+elif st.session_state.pagina_actual == "historial":
+    st.header("Historial")
+    st.info("Página en construcción.")
