@@ -80,13 +80,17 @@ def obtener_eventos_orden(
         filas = conexion.execute(
             """
             SELECT
-                id,
-                evento,
-                fecha_hora,
-                horas_producidas
-            FROM historial_produccion
-            WHERE orden_id = ?
-            ORDER BY fecha_hora ASC, id ASC
+                hp.id,
+                hp.evento,
+                hp.fecha_hora,
+                hp.horas_producidas,
+                hp.tren_id,
+                t.nombre AS nombre_tren
+            FROM historial_produccion AS hp
+            INNER JOIN trenes AS t
+                ON t.id = hp.tren_id
+            WHERE hp.orden_id = ?
+            ORDER BY hp.fecha_hora ASC, hp.id ASC
             """,
             (orden_id,),
         ).fetchall()

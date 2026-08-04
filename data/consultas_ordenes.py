@@ -112,6 +112,7 @@ def obtener_historial(
 
     return [dict(fila) for fila in filas]
 
+
 def obtener_ordenes_entrada() -> list[dict]:
     """
     Obtiene las OT que todavía no han sido asignadas a un tren.
@@ -131,6 +132,7 @@ def obtener_ordenes_entrada() -> list[dict]:
         ).fetchall()
 
     return [dict(fila) for fila in filas]
+
 
 def buscar_historial(
     tren_id: int | None = None,

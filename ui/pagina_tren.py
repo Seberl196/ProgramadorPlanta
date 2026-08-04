@@ -30,17 +30,19 @@ def mostrar_pagina_tren(
         tren_id=tren_id,
     )
 
-    pestana_kanban, pestana_gantt_1, pestana_gantt_2, pestana_historial = st.tabs(
+    (
+        pestana_kanban,
+        pestana_gantt_1,
+        pestana_gantt_2,
+    ) = st.tabs(
         [
             "Kanban",
             "Gantt 1",
             "Gantt 2",
-            "Historial",
         ]
     )
 
     with pestana_kanban:
-
         mostrar_programacion(
             inicio_programacion,
             tren_id=tren_id,
@@ -57,4 +59,3 @@ def mostrar_pagina_tren(
             inicio_programacion,
             tren_id=tren_id,
         )
-

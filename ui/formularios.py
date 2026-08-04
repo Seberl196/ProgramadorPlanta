@@ -162,4 +162,3 @@ def mostrar_formulario_nueva_ot() -> None:
 
     except sqlite3.Error as error:
         st.error(f"No fue posible añadir la OT: {error}")
- 

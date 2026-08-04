@@ -2,7 +2,6 @@ from datetime import datetime
 
 import streamlit as st
 
-from data.consultas_ordenes import obtener_historial
 from data.historial_produccion import (
     obtener_eventos_orden,
 )
@@ -17,10 +16,6 @@ def mostrar_historial_produccion(
 
     st.subheader("Historial de producción")
 
-    if not ordenes:
-        st.info("No se encontraron órdenes de trabajo.")
-        return
-
     for orden in ordenes:
         fecha_fin = orden.get("fecha_fin_real")
 
@@ -31,8 +26,17 @@ def mostrar_historial_produccion(
         else:
             fecha_fin_formateada = "Sin fecha"
 
+        eventos = obtener_eventos_orden(orden["id"])
+
+        trenes_produccion = list(
+            dict.fromkeys(evento["nombre_tren"] for evento in eventos)
+        )
+
+        texto_trenes = " → ".join(trenes_produccion)
+
         titulo = (
             f"OT {orden['numero_ot']} · "
+            f"{texto_trenes} · "
             f"Terminada {fecha_fin_formateada} · "
             f"{orden['duracion_horas']:.2f} h"
         )
@@ -42,11 +46,11 @@ def mostrar_historial_produccion(
 
             st.write(f"**Horas producidas:** {orden['horas_producidas']:.2f} h")
 
-            eventos = obtener_eventos_orden(orden["id"])
-
             if not eventos:
                 st.info("Esta OT no tiene eventos registrados en el historial.")
                 continue
+
+            st.write("**Trenes de producción:** " + " → ".join(trenes_produccion))
 
             st.markdown("#### Eventos")
 
@@ -58,10 +62,15 @@ def mostrar_historial_produccion(
                 nombre_evento = evento["evento"].capitalize()
 
                 if evento["horas_producidas"] is None:
-                    st.write(f"**{fecha_evento}** · {nombre_evento}")
+                    st.write(
+                        f"**{fecha_evento}** · "
+                        f"{evento['nombre_tren']} · "
+                        f"{nombre_evento}"
+                    )
                 else:
                     st.write(
                         f"**{fecha_evento}** · "
+                        f"{evento['nombre_tren']} · "
                         f"{nombre_evento} · "
                         f"{evento['horas_producidas']:.2f} h"
                     )

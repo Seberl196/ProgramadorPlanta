@@ -7,9 +7,9 @@ from ui.mensajes import (
     inicializar_mensajes,
     mostrar_mensajes,
 )
-from ui.pagina_tren import mostrar_pagina_tren
-from ui.pagina_nueva_ot import mostrar_pagina_nueva_ot
 from ui.pagina_historial import mostrar_pagina_historial
+from ui.pagina_nueva_ot import mostrar_pagina_nueva_ot
+from ui.pagina_tren import mostrar_pagina_tren
 
 st.set_page_config(
     page_title="Programador de Planta",
@@ -72,9 +72,7 @@ for tren in trenes:
         st.rerun()
 
 tren_seleccionado = next(
-    tren
-    for tren in trenes
-    if tren["id"] == st.session_state.tren_id_seleccionado
+    tren for tren in trenes if tren["id"] == st.session_state.tren_id_seleccionado
 )
 
 tren_id_seleccionado = tren_seleccionado["id"]
@@ -87,7 +85,7 @@ if st.session_state.pagina_actual == "tren":
     )
 
 elif st.session_state.pagina_actual == "nueva_ot":
-    mostrar_pagina_nueva_ot()   
+    mostrar_pagina_nueva_ot()
 
 elif st.session_state.pagina_actual == "historial":
     mostrar_pagina_historial()

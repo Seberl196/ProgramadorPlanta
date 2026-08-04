@@ -17,12 +17,7 @@ def mostrar_pagina_historial() -> None:
         "Todos": None,
     }
 
-    opciones_trenes.update(
-        {
-            tren["nombre"]: tren["id"]
-            for tren in trenes
-        }
-    )
+    opciones_trenes.update({tren["nombre"]: tren["id"] for tren in trenes})
 
     columna_tren, columna_ot = st.columns(2)
 

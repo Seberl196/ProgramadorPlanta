@@ -38,6 +38,7 @@ def agregar_orden(
             ),
         )
 
+
 def actualizar_orden(
     orden_id: int,
     numero_ot: str,
@@ -90,6 +91,7 @@ def eliminar_orden(
         )
 
     reorganizar_posiciones(tren_id)
+
 
 def asignar_orden_a_tren(
     orden_id: int,
