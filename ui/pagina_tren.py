@@ -2,11 +2,9 @@ import streamlit as st
 
 from ui.formularios import (
     mostrar_formulario_inicio_programacion,
-    mostrar_formulario_nueva_ot,
 )
 from ui.gantt import mostrar_gantt
 from ui.gantt_diario import mostrar_gantt_diario
-from ui.historial_produccion import mostrar_historial_produccion
 from ui.tarjetas import mostrar_programacion
 
 
@@ -32,22 +30,19 @@ def mostrar_pagina_tren(
         tren_id=tren_id,
     )
 
-    pestana_kanban, pestana_gantt_1, pestana_gantt_2, pestana_historial = st.tabs(
+    (
+        pestana_kanban,
+        pestana_gantt_1,
+        pestana_gantt_2,
+    ) = st.tabs(
         [
             "Kanban",
             "Gantt 1",
             "Gantt 2",
-            "Historial",
         ]
     )
 
     with pestana_kanban:
-        mostrar_formulario_nueva_ot(
-            tren_id=tren_id,
-        )
-
-        st.divider()
-
         mostrar_programacion(
             inicio_programacion,
             tren_id=tren_id,
@@ -62,10 +57,5 @@ def mostrar_pagina_tren(
     with pestana_gantt_2:
         mostrar_gantt_diario(
             inicio_programacion,
-            tren_id=tren_id,
-        )
-
-    with pestana_historial:
-        mostrar_historial_produccion(
             tren_id=tren_id,
         )

@@ -107,9 +107,7 @@ def mostrar_formulario_inicio_programacion(
     return inicio_programacion
 
 
-def mostrar_formulario_nueva_ot(
-    tren_id: int,
-) -> None:
+def mostrar_formulario_nueva_ot() -> None:
     """
     Muestra el formulario para añadir una nueva OT.
     """
@@ -153,7 +151,6 @@ def mostrar_formulario_nueva_ot(
         agregar_orden(
             numero_ot=numero_ot,
             duracion_horas=duracion_horas,
-            tren_id=tren_id,
         )
 
         guardar_mensaje(f"La OT {numero_ot.strip()} fue añadida.")
