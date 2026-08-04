@@ -8,28 +8,11 @@ from data.programacion_ordenes import reorganizar_posiciones
 def agregar_orden(
     numero_ot: str,
     duracion_horas: float,
-    tren_id: int,
 ) -> None:
     """
-    Añade una OT al final de la cola activa
-    del tren indicado.
+    Añade una OT a la bandeja de entrada.
     """
     with obtener_conexion() as conexion:
-        resultado = conexion.execute(
-            """
-            SELECT
-                COALESCE(MAX(posicion), 0) + 1
-                AS siguiente_posicion
-            FROM ordenes
-            WHERE estado IN (
-                'pendiente',
-                'en_produccion'
-            )
-            AND tren_id = ?
-            """,
-            (tren_id,),
-        ).fetchone()
-
         conexion.execute(
             """
             INSERT INTO ordenes (
@@ -40,16 +23,20 @@ def agregar_orden(
                 horas_producidas,
                 tren_id
             )
-            VALUES (?, ?, ?, 'pendiente', 0, ?)
+            VALUES (
+                NULL,
+                ?,
+                ?,
+                'entrada',
+                0,
+                NULL
+            )
             """,
             (
-                int(resultado["siguiente_posicion"]),
                 numero_ot.strip(),
                 float(duracion_horas),
-                tren_id,
             ),
         )
-
 
 def actualizar_orden(
     orden_id: int,
@@ -103,3 +90,38 @@ def eliminar_orden(
         )
 
     reorganizar_posiciones(tren_id)
+
+def asignar_orden_a_tren(
+    orden_id: int,
+    tren_id: int,
+) -> None:
+    """
+    Asigna una OT de la bandeja de entrada a un tren.
+    """
+    with obtener_conexion() as conexion:
+        ultima_posicion = conexion.execute(
+            """
+            SELECT COALESCE(MAX(posicion), 0)
+            FROM ordenes
+            WHERE tren_id = ?
+              AND estado != 'terminada'
+            """,
+            (tren_id,),
+        ).fetchone()[0]
+
+        conexion.execute(
+            """
+            UPDATE ordenes
+            SET
+                tren_id = ?,
+                posicion = ?,
+                estado = 'pendiente'
+            WHERE id = ?
+              AND estado = 'entrada'
+            """,
+            (
+                tren_id,
+                ultima_posicion + 1,
+                orden_id,
+            ),
+        )

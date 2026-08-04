@@ -9,17 +9,16 @@ from data.historial_produccion import (
 
 
 def mostrar_historial_produccion(
-    tren_id: int,
+    ordenes: list[dict],
 ) -> None:
     """
     Muestra las OT terminadas del tren y su historial de eventos.
     """
-    ordenes = obtener_historial(tren_id)
 
     st.subheader("Historial de producción")
 
     if not ordenes:
-        st.info("Todavía no hay OT terminadas en este tren.")
+        st.info("No se encontraron órdenes de trabajo.")
         return
 
     for orden in ordenes:

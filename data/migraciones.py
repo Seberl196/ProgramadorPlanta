@@ -167,18 +167,28 @@ def crear_tabla_ordenes() -> None:
             """
             CREATE TABLE IF NOT EXISTS ordenes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                posicion INTEGER NOT NULL,
-                numero_ot TEXT NOT NULL UNIQUE,
+                posicion INTEGER,
+                numero_ot TEXT NOT NULL,
                 duracion_horas REAL NOT NULL,
-                estado TEXT NOT NULL DEFAULT 'pendiente',
+                estado TEXT NOT NULL DEFAULT 'entrada',
+                horas_producidas REAL NOT NULL DEFAULT 0,
                 fecha_inicio_real TEXT,
                 fecha_fin_real TEXT,
-                horas_producidas REAL NOT NULL DEFAULT 0,
                 inicio_manual TEXT,
-                tren_id INTEGER NOT NULL DEFAULT 1,
+                tren_id INTEGER,
 
                 FOREIGN KEY (tren_id)
-                    REFERENCES trenes(id)
+                    REFERENCES trenes(id),
+
+                CHECK (
+                    estado IN (
+                        'entrada',
+                        'pendiente',
+                        'en_produccion',
+                        'pausada',
+                        'terminada'
+                    )
+                )
             )
             """
         )

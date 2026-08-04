@@ -5,7 +5,6 @@ from ui.formularios import (
 )
 from ui.gantt import mostrar_gantt
 from ui.gantt_diario import mostrar_gantt_diario
-from ui.historial_produccion import mostrar_historial_produccion
 from ui.tarjetas import mostrar_programacion
 
 
@@ -59,7 +58,3 @@ def mostrar_pagina_tren(
             tren_id=tren_id,
         )
 
-    with pestana_historial:
-        mostrar_historial_produccion(
-            tren_id=tren_id,
-        )

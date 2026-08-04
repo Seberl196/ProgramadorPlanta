@@ -9,6 +9,7 @@ from ui.mensajes import (
 )
 from ui.pagina_tren import mostrar_pagina_tren
 from ui.pagina_nueva_ot import mostrar_pagina_nueva_ot
+from ui.pagina_historial import mostrar_pagina_historial
 
 st.set_page_config(
     page_title="Programador de Planta",
@@ -86,9 +87,7 @@ if st.session_state.pagina_actual == "tren":
     )
 
 elif st.session_state.pagina_actual == "nueva_ot":
-    st.header("Nueva orden de trabajo")
-    st.info("Página en construcción.")
+    mostrar_pagina_nueva_ot()   
 
 elif st.session_state.pagina_actual == "historial":
-    st.header("Historial")
-    st.info("Página en construcción.")
+    mostrar_pagina_historial()

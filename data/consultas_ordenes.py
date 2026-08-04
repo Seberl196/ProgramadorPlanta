@@ -111,3 +111,63 @@ def obtener_historial(
         ).fetchall()
 
     return [dict(fila) for fila in filas]
+
+def obtener_ordenes_entrada() -> list[dict]:
+    """
+    Obtiene las OT que todavía no han sido asignadas a un tren.
+    """
+    with obtener_conexion() as conexion:
+        filas = conexion.execute(
+            """
+            SELECT
+                id,
+                numero_ot,
+                duracion_horas,
+                estado
+            FROM ordenes
+            WHERE estado = 'entrada'
+            ORDER BY id ASC
+            """
+        ).fetchall()
+
+    return [dict(fila) for fila in filas]
+
+def buscar_historial(
+    tren_id: int | None = None,
+    numero_ot: str | None = None,
+) -> list[dict]:
+    """
+    Busca OT terminadas filtrando opcionalmente
+    por tren y número de OT.
+    """
+    consulta = """
+        SELECT *
+        FROM ordenes
+        WHERE estado = 'terminada'
+    """
+
+    parametros = []
+
+    if tren_id is not None:
+        consulta += """
+            AND tren_id = ?
+        """
+        parametros.append(tren_id)
+
+    if numero_ot:
+        consulta += """
+            AND numero_ot LIKE ?
+        """
+        parametros.append(f"%{numero_ot.strip()}%")
+
+    consulta += """
+        ORDER BY fecha_fin_real DESC, id DESC
+    """
+
+    with obtener_conexion() as conexion:
+        filas = conexion.execute(
+            consulta,
+            parametros,
+        ).fetchall()
+
+    return [dict(fila) for fila in filas]
