@@ -27,19 +27,34 @@ trenes = obtener_trenes_activos()
 st.title("Programador de Planta")
 
 
+trenes = obtener_trenes_activos()
+
 if not trenes:
-    st.error("No hay trenes activos configurados.")
+    st.warning("No hay trenes activos disponibles.")
     st.stop()
 
-opciones_trenes = {tren["nombre"]: tren["id"] for tren in trenes}
+if "tren_id_seleccionado" not in st.session_state:
+    st.session_state.tren_id_seleccionado = trenes[0]["id"]
 
-nombre_tren_seleccionado = st.selectbox(
-    "Tren de producción",
-    options=list(opciones_trenes.keys()),
-    key="tren_seleccionado",
+st.sidebar.subheader("Trenes")
+
+for tren in trenes:
+    if st.sidebar.button(
+        tren["nombre"],
+        key=f"seleccionar_tren_{tren['id']}",
+        use_container_width=True,
+    ):
+        st.session_state.tren_id_seleccionado = tren["id"]
+        st.rerun()
+
+tren_seleccionado = next(
+    tren
+    for tren in trenes
+    if tren["id"] == st.session_state.tren_id_seleccionado
 )
 
-tren_id_seleccionado = opciones_trenes[nombre_tren_seleccionado]
+tren_id_seleccionado = tren_seleccionado["id"]
+nombre_tren_seleccionado = tren_seleccionado["nombre"]
 
 mostrar_pagina_tren(
     tren_id=tren_id_seleccionado,
