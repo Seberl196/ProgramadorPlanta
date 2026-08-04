@@ -306,6 +306,7 @@ def crear_tabla_estado_tren() -> None:
             [(tren["id"],) for tren in trenes],
         )
 
+
 def crear_tabla_historial_produccion() -> None:
     """
     Crea el historial de eventos de producción de las OT.
@@ -354,6 +355,7 @@ def crear_tabla_historial_produccion() -> None:
             ON historial_produccion (tren_id)
             """
         )
+
 
 def inicializar_base_de_datos() -> None:
     """

@@ -2,8 +2,8 @@ from datetime import datetime
 
 from data.conexion import obtener_conexion
 from data.consultas_ordenes import obtener_tren_id_de_orden
-from data.programacion_ordenes import reorganizar_posiciones
 from data.historial_produccion import registrar_evento_produccion
+from data.programacion_ordenes import reorganizar_posiciones
 
 
 def iniciar_produccion(
@@ -63,13 +63,12 @@ def iniciar_produccion(
                 datetime.now().isoformat(timespec="seconds"),
                 orden_id,
             ),
-            
         )
     registrar_evento_produccion(
-    orden_id=orden_id,
-    tren_id=tren_id,
-    evento="iniciada",
-    horas_producidas=0,
+        orden_id=orden_id,
+        tren_id=tren_id,
+        evento="iniciada",
+        horas_producidas=0,
     )
 
 
@@ -156,7 +155,7 @@ def pausar_produccion(
         evento="pausada",
         horas_producidas=nuevo_avance,
     )
-    
+
     reorganizar_posiciones(tren_id)
 
 
@@ -172,7 +171,10 @@ def reanudar_produccion(
     with obtener_conexion() as conexion:
         orden = conexion.execute(
             """
-            SELECT id, estado
+            SELECT
+                id,
+                estado,
+                horas_producidas
             FROM ordenes
             WHERE id = ?
             """,
@@ -226,7 +228,7 @@ def reanudar_produccion(
         orden_id=orden_id,
         tren_id=tren_id,
         evento="reanudada",
-        horas_producidas=None,
+        horas_producidas=float(orden["horas_producidas"] or 0),
     )
     reorganizar_posiciones(tren_id)
 
