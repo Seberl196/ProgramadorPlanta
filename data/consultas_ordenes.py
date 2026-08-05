@@ -173,3 +173,55 @@ def buscar_historial(
         ).fetchall()
 
     return [dict(fila) for fila in filas]
+
+
+def buscar_ordenes_historial(
+    tren_id: int | None = None,
+    numero_ot: str | None = None,
+    estado: str | None = None,
+) -> list[dict]:
+    """
+    Busca OT para el historial global.
+
+    Permite filtrar opcionalmente por:
+    - Tren.
+    - Número de OT.
+    - Estado.
+    """
+    consulta = """
+        SELECT *
+        FROM ordenes
+        WHERE 1 = 1
+    """
+
+    parametros = []
+
+    if tren_id is not None:
+        consulta += """
+            AND tren_id = ?
+        """
+        parametros.append(tren_id)
+
+    if numero_ot:
+        consulta += """
+            AND numero_ot LIKE ?
+        """
+        parametros.append(f"%{numero_ot.strip()}%")
+
+    if estado is not None:
+        consulta += """
+            AND estado = ?
+        """
+        parametros.append(estado)
+
+    consulta += """
+        ORDER BY id DESC
+    """
+
+    with obtener_conexion() as conexion:
+        filas = conexion.execute(
+            consulta,
+            parametros,
+        ).fetchall()
+
+    return [dict(fila) for fila in filas]
