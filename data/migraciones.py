@@ -366,6 +366,40 @@ def crear_tabla_historial_produccion() -> None:
             """
         )
 
+def crear_tabla_historial_movimientos() -> None:
+    """
+    Crea el historial de asignaciones y movimientos de las OT.
+    """
+    with obtener_conexion() as conexion:
+        conexion.execute(
+            """
+            CREATE TABLE IF NOT EXISTS historial_movimientos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                orden_id INTEGER NOT NULL,
+                tren_origen_id INTEGER,
+                tren_destino_id INTEGER NOT NULL,
+                tipo TEXT NOT NULL,
+                fecha_hora TEXT NOT NULL,
+
+                FOREIGN KEY (orden_id)
+                    REFERENCES ordenes(id),
+
+                FOREIGN KEY (tren_origen_id)
+                    REFERENCES trenes(id),
+
+                FOREIGN KEY (tren_destino_id)
+                    REFERENCES trenes(id),
+
+                CHECK (
+                    tipo IN (
+                        'asignacion',
+                        'movimiento'
+                    )
+                )
+            )
+            """
+        )
+
 
 def inicializar_base_de_datos() -> None:
     """
@@ -376,3 +410,4 @@ def inicializar_base_de_datos() -> None:
     crear_tabla_ordenes()
     crear_tabla_estado_tren()
     crear_tabla_historial_produccion()
+    crear_tabla_historial_movimientos()

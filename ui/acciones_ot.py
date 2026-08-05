@@ -8,6 +8,7 @@ from data.programacion_ordenes import mover_orden
 from ui.dialogos_ot import (
     mostrar_dialogo_edicion,
     mostrar_dialogo_eliminacion,
+    mostrar_dialogo_mover,
 )
 from ui.dialogos_produccion import (
     mostrar_dialogo_pausa,
@@ -87,27 +88,34 @@ def mostrar_acciones_pendiente(
         ):
             mostrar_dialogo_eliminacion(orden)
 
-        if orden["posicion"] == 1 and st.button(
-            "▶️ Iniciar producción",
-            key=f"iniciar_{orden['id']}",
-            type="primary",
-            disabled=hay_ot_en_produccion,
-            use_container_width=True,
-        ):
-            try:
-                iniciar_produccion(
-                    orden["id"],
-                )
+    if st.button(
+        "↔️ Mover a otro tren",
+        key=f"mover_tren_{orden['id']}",
+        use_container_width=True,
+    ):
+        mostrar_dialogo_mover(orden)
 
-                guardar_mensaje(
-                    f"La OT {orden['numero_ot']} está en producción.",
-                    "▶️",
-                )
+    if orden["posicion"] == 1 and st.button(
+        "▶️ Iniciar producción",
+        key=f"iniciar_{orden['id']}",
+        type="primary",
+        disabled=hay_ot_en_produccion,
+        use_container_width=True,
+    ):
+        try:
+            iniciar_produccion(
+                orden["id"],
+            )
 
-                st.rerun()
+            guardar_mensaje(
+                f"La OT {orden['numero_ot']} está en producción.",
+                "▶️",
+            )
 
-            except ValueError as error:
-                st.error(str(error))
+            st.rerun()
+
+        except ValueError as error:
+            st.error(str(error))
 
 
 def mostrar_acciones_en_produccion(
@@ -163,11 +171,13 @@ def mostrar_acciones_pausada(
             st.error(str(error))
 
     if hay_ot_en_produccion:
-        st.caption("No se puede reanudar mientras otra OT esté en producción.")
+        st.caption(
+            "No se puede reanudar mientras otra OT esté en producción."
+        )
 
     if st.button(
-        "🏁 Terminar producción",
-        key=f"terminar_pausada_{orden['id']}",
+        "↔️ Mover a otro tren",
+        key=f"mover_pausada_{orden['id']}",
         use_container_width=True,
     ):
-        mostrar_dialogo_terminar(orden)
+        mostrar_dialogo_mover(orden)

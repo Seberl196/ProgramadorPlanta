@@ -9,7 +9,12 @@ from data.ordenes import (
     eliminar_orden,
 )
 from ui.mensajes import guardar_mensaje
-
+from data.ordenes import (
+    actualizar_orden,
+    eliminar_orden,
+    mover_orden_a_tren,
+)
+from data.trenes import obtener_trenes_activos
 
 @st.dialog("Editar orden de trabajo")
 def mostrar_dialogo_edicion(
@@ -196,5 +201,79 @@ def mostrar_dialogo_eliminacion(
             "Cancelar",
             use_container_width=True,
             key=f"cancelar_eliminar_{orden['id']}",
+        ):
+            st.rerun()
+
+@st.dialog("Mover orden de trabajo")
+def mostrar_dialogo_mover(
+    orden: dict,
+) -> None:
+    """
+    Permite mover una OT pendiente o pausada a otro tren.
+    """
+    trenes = obtener_trenes_activos()
+
+    trenes_destino = [
+        tren
+        for tren in trenes
+        if tren["id"] != orden["tren_id"]
+    ]
+
+    if not trenes_destino:
+        st.info("No hay otro tren disponible.")
+        return
+
+    st.write(
+        f"Selecciona el tren destino para la OT "
+        f"**{orden['numero_ot']}**."
+    )
+
+    opciones = {
+        tren["nombre"]: tren["id"]
+        for tren in trenes_destino
+    }
+
+    nombre_destino = st.selectbox(
+        "Tren destino",
+        opciones.keys(),
+        key=f"select_tren_destino_{orden['id']}",
+    )
+
+    mover, cancelar = st.columns(2)
+
+    with mover:
+        if st.button(
+            "Mover OT",
+            type="primary",
+            use_container_width=True,
+            key=f"confirmar_mover_{orden['id']}",
+        ):
+            try:
+                mover_orden_a_tren(
+                    orden_id=orden["id"],
+                    tren_destino_id=opciones[nombre_destino],
+                )
+
+                guardar_mensaje(
+                    f"La OT {orden['numero_ot']} fue movida a "
+                    f"{nombre_destino}.",
+                    "↔️",
+                )
+
+                st.rerun()
+
+            except ValueError as error:
+                st.error(str(error))
+
+            except sqlite3.Error as error:
+                st.error(
+                    f"No fue posible mover la OT: {error}"
+                )
+
+    with cancelar:
+        if st.button(
+            "Cancelar",
+            use_container_width=True,
+            key=f"cancelar_mover_{orden['id']}",
         ):
             st.rerun()
