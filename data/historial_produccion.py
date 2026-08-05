@@ -74,7 +74,8 @@ def obtener_eventos_orden(
     orden_id: int,
 ) -> list[dict]:
     """
-    Obtiene todos los eventos registrados para una OT.
+    Obtiene los eventos de producción de una OT
+    en orden cronológico.
     """
     with obtener_conexion() as conexion:
         filas = conexion.execute(
@@ -90,7 +91,9 @@ def obtener_eventos_orden(
             INNER JOIN trenes AS t
                 ON t.id = hp.tren_id
             WHERE hp.orden_id = ?
-            ORDER BY hp.fecha_hora ASC, hp.id ASC
+            ORDER BY
+                hp.fecha_hora ASC,
+                hp.id ASC
             """,
             (orden_id,),
         ).fetchall()
