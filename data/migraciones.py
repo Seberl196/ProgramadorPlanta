@@ -366,6 +366,7 @@ def crear_tabla_historial_produccion() -> None:
             """
         )
 
+
 def crear_tabla_historial_movimientos() -> None:
     """
     Crea el historial de asignaciones y movimientos de las OT.

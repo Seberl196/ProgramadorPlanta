@@ -7,14 +7,11 @@ from core.programacion import ajustar_inicio_laboral
 from data.ordenes import (
     actualizar_orden,
     eliminar_orden,
-)
-from ui.mensajes import guardar_mensaje
-from data.ordenes import (
-    actualizar_orden,
-    eliminar_orden,
     mover_orden_a_tren,
 )
 from data.trenes import obtener_trenes_activos
+from ui.mensajes import guardar_mensaje
+
 
 @st.dialog("Editar orden de trabajo")
 def mostrar_dialogo_edicion(
@@ -204,6 +201,7 @@ def mostrar_dialogo_eliminacion(
         ):
             st.rerun()
 
+
 @st.dialog("Mover orden de trabajo")
 def mostrar_dialogo_mover(
     orden: dict,
@@ -213,25 +211,15 @@ def mostrar_dialogo_mover(
     """
     trenes = obtener_trenes_activos()
 
-    trenes_destino = [
-        tren
-        for tren in trenes
-        if tren["id"] != orden["tren_id"]
-    ]
+    trenes_destino = [tren for tren in trenes if tren["id"] != orden["tren_id"]]
 
     if not trenes_destino:
         st.info("No hay otro tren disponible.")
         return
 
-    st.write(
-        f"Selecciona el tren destino para la OT "
-        f"**{orden['numero_ot']}**."
-    )
+    st.write(f"Selecciona el tren destino para la OT **{orden['numero_ot']}**.")
 
-    opciones = {
-        tren["nombre"]: tren["id"]
-        for tren in trenes_destino
-    }
+    opciones = {tren["nombre"]: tren["id"] for tren in trenes_destino}
 
     nombre_destino = st.selectbox(
         "Tren destino",
@@ -255,8 +243,7 @@ def mostrar_dialogo_mover(
                 )
 
                 guardar_mensaje(
-                    f"La OT {orden['numero_ot']} fue movida a "
-                    f"{nombre_destino}.",
+                    f"La OT {orden['numero_ot']} fue movida a {nombre_destino}.",
                     "↔️",
                 )
 
@@ -266,9 +253,7 @@ def mostrar_dialogo_mover(
                 st.error(str(error))
 
             except sqlite3.Error as error:
-                st.error(
-                    f"No fue posible mover la OT: {error}"
-                )
+                st.error(f"No fue posible mover la OT: {error}")
 
     with cancelar:
         if st.button(

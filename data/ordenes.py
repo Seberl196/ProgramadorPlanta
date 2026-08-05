@@ -2,8 +2,8 @@ from datetime import datetime
 
 from data.conexion import obtener_conexion
 from data.consultas_ordenes import obtener_tren_id_de_orden
-from data.programacion_ordenes import reorganizar_posiciones
 from data.historial_movimientos import registrar_movimiento_orden
+from data.programacion_ordenes import reorganizar_posiciones
 
 
 def agregar_orden(
@@ -133,6 +133,7 @@ def asignar_orden_a_tren(
         tren_destino_id=tren_id,
     )
 
+
 def mover_orden_a_tren(
     orden_id: int,
     tren_destino_id: int,
@@ -159,16 +160,12 @@ def mover_orden_a_tren(
             "pendiente",
             "pausada",
         }:
-            raise ValueError(
-                "Solo se pueden mover OT pendientes o pausadas."
-            )
+            raise ValueError("Solo se pueden mover OT pendientes o pausadas.")
 
         tren_origen_id = orden["tren_id"]
 
         if tren_origen_id == tren_destino_id:
-            raise ValueError(
-                "La OT ya pertenece al tren seleccionado."
-            )
+            raise ValueError("La OT ya pertenece al tren seleccionado.")
 
         if orden["estado"] == "pendiente":
             ultima_posicion = conexion.execute(

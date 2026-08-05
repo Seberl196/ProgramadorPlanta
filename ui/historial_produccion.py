@@ -2,6 +2,7 @@ from datetime import datetime
 
 import streamlit as st
 
+from data.historial_movimientos import obtener_movimientos_orden
 from data.historial_produccion import (
     obtener_eventos_orden,
 )
@@ -27,12 +28,18 @@ def mostrar_historial_produccion(
             fecha_fin_formateada = "Sin fecha"
 
         eventos = obtener_eventos_orden(orden["id"])
+        movimientos = obtener_movimientos_orden(orden["id"])
 
-        trenes_produccion = list(
-            dict.fromkeys(evento["nombre_tren"] for evento in eventos)
-        )
+        if movimientos:
+            recorrido_trenes = []
 
-        texto_trenes = " → ".join(trenes_produccion)
+            for movimiento in movimientos:
+                if movimiento["tipo"] == "asignacion" or movimiento["tipo"] == "movimiento":
+                    recorrido_trenes.append(movimiento["nombre_tren_destino"])
+
+            texto_trenes = " → ".join(dict.fromkeys(recorrido_trenes))
+        else:
+            texto_trenes = "Sin tren"
 
         titulo = (
             f"OT {orden['numero_ot']} · "
@@ -50,7 +57,26 @@ def mostrar_historial_produccion(
                 st.info("Esta OT no tiene eventos registrados en el historial.")
                 continue
 
-            st.write("**Trenes de producción:** " + " → ".join(trenes_produccion))
+            if movimientos:
+                st.markdown("#### Asignaciones y movimientos")
+
+                for movimiento in movimientos:
+                    fecha_movimiento = datetime.fromisoformat(
+                        movimiento["fecha_hora"]
+                    ).strftime("%d/%m/%Y %H:%M")
+
+                    if movimiento["tipo"] == "asignacion":
+                        st.write(
+                            f"**{fecha_movimiento}** · "
+                            f"Asignada a {movimiento['nombre_tren_destino']}"
+                        )
+
+                    else:
+                        st.write(
+                            f"**{fecha_movimiento}** · "
+                            f"{movimiento['nombre_tren_origen']} → "
+                            f"{movimiento['nombre_tren_destino']}"
+                        )
 
             st.markdown("#### Eventos")
 

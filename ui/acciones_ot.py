@@ -171,9 +171,7 @@ def mostrar_acciones_pausada(
             st.error(str(error))
 
     if hay_ot_en_produccion:
-        st.caption(
-            "No se puede reanudar mientras otra OT esté en producción."
-        )
+        st.caption("No se puede reanudar mientras otra OT esté en producción.")
 
     if st.button(
         "↔️ Mover a otro tren",
